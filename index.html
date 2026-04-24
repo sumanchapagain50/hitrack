@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HITrack | Terai Heat Index Monitoring</title>
+    <meta name="description" content="Real-time heat index evaluation for Nepal's Terai region using HITrack's predictive models.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Heroicons -->
+    <script src="https://unpkg.com/@heroicons/visual-editing@0.0.1/dist/heroicons.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar/Header -->
+        <header class="header">
+            <div class="logo-section">
+                <img src="logo.png" alt="HITrack Logo" class="brand-logo">
+                <div class="logo-text">
+                    <h1>HITrack <span>Nepal</span></h1>
+                    <p>Terai Region Real-time Evaluation</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="export-btn" onclick="exportCSV()" title="Download current observations as CSV">
+                    ⬇ Export CSV
+                </button>
+                <div class="status-badge" id="last-update">
+                    Last updated: Loading...
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-layout">
+            <!-- Left: Visual Column (Chart & Map) -->
+            <div class="visual-column">
+                <!-- Comparison Chart -->
+                <section class="panel chart-panel">
+                    <div class="panel-header">
+                        <h2>Model Comparison</h2>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Interactive Map with Overlays -->
+                <section class="panel map-panel">
+                    <div id="map" class="map-container"></div>
+                    
+                    <!-- Map Overlays -->
+                    <div class="map-overlay-top">
+                        <div class="model-toggle">
+                            <button id="btn-steadman" class="active" onclick="switchModel('steadman')">Steadman</button>
+                            <button id="btn-humidex" onclick="switchModel('humidex')">Humidex</button>
+                        </div>
+                    </div>
+                    
+                    <div class="map-overlay-bottom">
+                        <div class="legend">
+                            <span class="legend-item"><span class="dot safe"></span> Low</span>
+                            <span class="legend-item"><span class="dot caution"></span> Caution</span>
+                            <span class="legend-item"><span class="dot danger"></span> Danger</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right: Evaluation Table -->
+            <section class="panel table-panel">
+                <div class="panel-header">
+                    <h2>Regional Real-time Evaluation</h2>
+                </div>
+                <div class="table-container">
+                    <table class="heat-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortData('name')">City <span class="sort-icon">↕</span></th>
+                                <th onclick="sortData('temp')">Temp <span class="sort-icon">↕</span></th>
+                                <th onclick="sortData('humidity')">RH% <span class="sort-icon">↕</span></th>
+                                <th onclick="sortData('humidex')">Humidex <span class="sort-icon">↕</span></th>
+                                <th onclick="sortData('steadman')">Steadman <span class="sort-icon">↕</span></th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="city-table-body"></tbody>
+                    </table>
+                    <div id="table-loader" class="loader">Initialising HeatTrack...</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- City Detail Modal -->
+        <div id="city-modal" class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="close-btn" onclick="closeModal()">×</button>
+                <div class="modal-header">
+                    <h2 id="modal-city-name">City Name</h2>
+                    <span id="modal-city-region" class="region-badge">Region</span>
+                </div>
+                
+                <div class="modal-grid">
+                    <div class="modal-current">
+                        <h3>Current Status</h3>
+                        <div class="status-main">
+                            <div class="big-temp" id="modal-temp">--°C</div>
+                            <div class="heat-badge" id="modal-status">SAFE</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="m-box"><span>Humidity</span><strong id="modal-humidity">--%</strong></div>
+                            <div class="m-box"><span>Humidex</span><strong id="modal-humidex">--</strong></div>
+                            <div class="m-box"><span>Steadman</span><strong id="modal-steadman">--</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-forecast">
+                        <h3>3-Day Forecast Trend</h3>
+                        <div class="modal-chart-wrapper">
+                            <canvas id="modalChart"></canvas>
+                        </div>
+                        <div class="forecast-days" id="modal-forecast-list">
+                            <!-- Forecast days will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2024 HITrack Nepal. Data powered by Open-Meteo. Real-time humidity & temperature evaluation.</p>
+        </footer>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="logic.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
